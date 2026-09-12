@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>たのしい！九九リズム学習</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fef3c7 100%);
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Bounce and pulse animations */
+        @keyframes beatPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        @keyframes cardPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        .animate-beat {
+            animation: beatPulse 0.4s ease-out;
+        }
+
+        .animate-card-pop {
+            animation: cardPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <header class="w-full bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-30 border-b border-orange-100">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('menu')">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-md text-xl">
+                    <i class="fa-solid fa-music"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black bg-gradient-to-r from-orange-600 via-amber-600 to-emerald-600 bg-clip-text text-transparent">
+                        九九リズム学園
+                    </h1>
+                    <p class="text-xs text-slate-500 font-bold">リズミカルにおぼえよう！</p>
+                </div>
+            </div>
+
+            <!-- Mode selector / Stamps badge -->
+            <div class="flex items-center gap-2">
+                <button onclick="openStampModal()" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm">
+                    <i class="fa-solid fa-stamp text-amber-600"></i>
+                    <span>ごほうび帳</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow flex flex-col justify-center">
+
+        <!-- VIEW 1: STAGE SELECTOR (MENU) -->
+        <section id="view-menu" class="space-y-6">
+            <div class="text-center space-y-2">
+                <span class="inline-block px-4 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold shadow-sm">
+                    🎵 すきな「だん」をえらぼう！
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-800">
+                    なんの段をれんしゅうする？
+                </h2>
+            </div>
+
+            <!-- Stage Grid 1 to 9 -->
+            <div id="stage-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                <!-- JS will generate stage buttons dynamically -->
+            </div>
+
+            <!-- Global Quick Actions -->
+            <div class="glass-card p-4 rounded-3xl shadow-sm flex flex-wrap gap-3 items-center justify-between mt-6">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-volume-high text-amber-500 text-lg"></i>
+                    <span class="font-bold text-sm text-slate-700">よみかた：</span>
+                </div>
+                <div class="flex bg-slate-100 p-1 rounded-2xl">
+                    <button id="mode-chant" onclick="setChantStyle('chant')" class="px-3 py-1.5 rounded-xl font-bold text-xs transition-all bg-white text-slate-800 shadow-sm">
+                        伝統九九（ににんがし）
+                    </button>
+                    <button id="mode-standard" onclick="setChantStyle('standard')" class="px-3 py-1.5 rounded-xl font-bold text-xs transition-all text-slate-500 hover:text-slate-800">
+                        標準（2×2=4）
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: PLAYER / PRACTICE -->
+        <section id="view-player" class="hidden flex-col items-center justify-center space-y-6 max-w-lg mx-auto w-full">
+            
+            <!-- Top Controls (Back & Stage Indicator) -->
+            <div class="w-full flex items-center justify-between">
+                <button onclick="switchView('menu')" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl font-bold text-sm shadow-sm flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>もどる</span>
+                </button>
+                <div id="player-stage-badge" class="px-4 py-1.5 bg-orange-500 text-white rounded-2xl font-black text-sm shadow-md">
+                    2の段
+                </div>
+                <button onclick="startQuizForCurrentDan()" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl font-bold text-sm shadow-md flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>テスト</span>
+                </button>
+            </div>
+
+            <!-- Main Rhythm Card -->
+            <div id="main-card" class="w-full glass-card rounded-3xl p-6 sm:p-8 text-center shadow-xl border-4 border-white transition-all duration-200 relative overflow-hidden flex flex-col items-center justify-center min-h-[260px]">
+                
+                <!-- Stage Icon Decor -->
+                <div id="card-bg-icon" class="absolute -right-6 -bottom-6 text-8xl text-slate-100 opacity-50 pointer-events-none select-none">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+
+                <!-- Equation Display -->
+                <div class="relative z-10 space-y-3 w-full">
+                    <!-- Numbers formula -->
+                    <div id="card-formula" class="text-4xl sm:text-6xl font-black tracking-tight text-slate-800">
+                        2 × 1 = 2
+                    </div>
+
+                    <!-- Kana Rhythm Chant Text -->
+                    <div id="card-chant" class="text-2xl sm:text-3xl font-black text-amber-600 bg-amber-50 inline-block px-6 py-2 rounded-2xl border-2 border-amber-200 shadow-inner">
+                        にいちがに
+                    </div>
+
+                    <!-- Visual beat indicator -->
+                    <div class="flex justify-center items-center gap-2 pt-2">
+                        <div id="beat-dot-1" class="w-3 h-3 rounded-full bg-slate-200 transition-all"></div>
+                        <div id="beat-dot-2" class="w-3 h-3 rounded-full bg-slate-200 transition-all"></div>
+                        <div id="beat-dot-3" class="w-3 h-3 rounded-full bg-slate-200 transition-all"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar & Item List -->
+            <div class="w-full space-y-2">
+                <div class="flex justify-between text-xs font-bold text-slate-500 px-1">
+                    <span>しんこうど</span>
+                    <span id="progress-text">1 / 9</span>
+                </div>
+                <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-0.5">
+                    <div id="progress-bar" class="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full transition-all duration-300 w-1/9"></div>
+                </div>
+
+                <!-- Mini Grid Preview -->
+                <div id="mini-items-grid" class="grid grid-cols-9 gap-1 pt-2">
+                    <!-- JS will generate 9 mini cards -->
+                </div>
+            </div>
+
+            <!-- Player Rhythm Controls -->
+            <div class="glass-card w-full p-4 rounded-3xl shadow-lg space-y-4">
+                
+                <!-- Main Play / Pause Button Row -->
+                <div class="flex items-center justify-center gap-4">
+                    <button onclick="prevStep()" class="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-lg font-bold shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-backward-step"></i>
+                    </button>
+                    
+                    <button id="play-btn" onclick="togglePlay()" class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center justify-center text-2xl shadow-lg active:scale-95 transition-all">
+                        <i id="play-icon" class="fa-solid fa-play ml-1"></i>
+                    </button>
+
+                    <button onclick="nextStep()" class="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-lg font-bold shadow-sm active:scale-95 transition-all">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                </div>
+
+                <!-- Speed & BGM Settings -->
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                    
+                    <!-- Speed Selector -->
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-gauge-high text-slate-400"></i>
+                        <span class="font-bold text-slate-600">スピード:</span>
+                        <select id="speed-select" onchange="changeSpeed(this.value)" class="bg-slate-100 border border-slate-200 rounded-xl px-2 py-1 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            <option value="slow">ゆっくり (70%)</option>
+                            <option value="normal" selected>ふつう (100%)</option>
+                            <option value="fast">はやい (130%)</option>
+                            <option value="super">超はやい (160%)</option>
+                        </select>
+                    </div>
+
+                    <!-- Auto Repeat Toggle -->
+                    <button id="repeat-btn" onclick="toggleRepeat()" class="px-3 py-1 rounded-xl bg-slate-100 text-slate-600 font-bold flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-repeat text-xs"></i>
+                        <span>くりかえし</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: QUIZ MODE -->
+        <section id="view-quiz" class="hidden flex-col items-center justify-center space-y-6 max-w-lg mx-auto w-full">
+            <div class="w-full flex items-center justify-between">
+                <button onclick="switchView('player')" class="px-4 py-2 bg-white text-slate-700 rounded-2xl font-bold text-sm shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>れんしゅうにもどる</span>
+                </button>
+                <div id="quiz-stage-badge" class="px-4 py-1.5 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-md">
+                    2の段 たしかめテスト
+                </div>
+            </div>
+
+            <!-- Quiz Card -->
+            <div class="w-full glass-card rounded-3xl p-6 text-center shadow-xl border-4 border-white space-y-6">
+                <!-- Question Number & Score -->
+                <div class="flex justify-between items-center text-xs font-bold text-slate-500 border-b border-slate-100 pb-2">
+                    <span id="quiz-q-num">だい 1 もん / ぜん 9 もん</span>
+                    <span id="quiz-score-count" class="text-emerald-600"><i class="fa-solid fa-star"></i> 0 てん</span>
+                </div>
+
+                <!-- Equation Display -->
+                <div class="space-y-2 py-2">
+                    <p class="text-xs font-bold text-slate-400">こたえはどれかな？</p>
+                    <div id="quiz-question" class="text-5xl font-black text-slate-800">
+                        2 × 3 = ?
+                    </div>
+                </div>
+
+                <!-- Options (4 Choices) -->
+                <div id="quiz-options" class="grid grid-cols-2 gap-3 pt-2">
+                    <!-- JS generated choices -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- STAMP / REWARD MODAL -->
+    <div id="stamp-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-6 shadow-2xl relative animate-card-pop">
+            <button onclick="closeStampModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+                ✕
+            </button>
+
+            <div class="text-center space-y-1">
+                <h3 class="text-xl font-black text-slate-800 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-award text-amber-500"></i>
+                    <span>ごほうびスタンプ帳</span>
+                </h3>
+                <p class="text-xs text-slate-500 font-bold">テストをクリアしてスタンプをあつめよう！</p>
+            </div>
+
+            <!-- Grid of 9 Stamps -->
+            <div id="stamps-grid" class="grid grid-cols-3 gap-3">
+                <!-- JS dynamic render -->
+            </div>
+
+            <button onclick="closeStampModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-md transition-all text-sm">
+                とじる
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs font-bold text-slate-400">
+        九九リズム学習アプリ &copy; 2026 - たのしく学べる掛け算アプリ
+    </footer>
+
+    <script>
+        // KUKU DATA DEFINITION
+        const KUKU_DATA = {
+            1: {
+                title: "1の段", color: "from-pink-400 to-rose-500", bgLight: "bg-rose-50", textCol: "text-rose-600", borderCol: "border-rose-300", icon: "fa-apple-whole",
+                items: [
+                    { num1: 1, num2: 1, ans: 1, chant: "いんいちがいち", std: "いち かける いち は いち" },
+                    { num1: 1, num2: 2, ans: 2, chant: "いんにがに", std: "いち かける に は に" },
+                    { num1: 1, num2: 3, ans: 3, chant: "いんさんがさん", std: "いち かける さん は さん" },
+                    { num1: 1, num2: 4, ans: 4, chant: "いんしがし", std: "いち かける よん は よん" },
+                    { num1: 1, num2: 5, ans: 5, chant: "いんごがご", std: "いち かける ご は ご" },
+                    { num1: 1, num2: 6, ans: 6, chant: "いんろくがろく", std: "いち かける ろく は ろく" },
+                    { num1: 1, num2: 7, ans: 7, chant: "いんしちがしち", std: "いち かける なな は なな" },
+                    { num1: 1, num2: 8, ans: 8, chant: "いんはちがはち", std: "いち かける はち は はち" },
+                    { num1: 1, num2: 9, ans: 9, chant: "いんくがく", std: "いち かける きゅう は きゅう" }
+                ]
+            },
+            2: {
+                title: "2の段", color: "from-orange-400 to-amber-500", bgLight: "bg-orange-50", textCol: "text-orange-600", borderCol: "border-orange-300", icon: "fa-car",
+                items: [
+                    { num1: 2, num2: 1, ans: 2, chant: "にいちがに", std: "に かける いち は に" },
+                    { num1: 2, num2: 2, ans: 4, chant: "ににんがし", std: "に かける に は よん" },
+                    { num1: 2, num2: 3, ans: 6, chant: "にかろく", std: "に かける さん は ろく" },
+                    { num1: 2, num2: 4, ans: 8, chant: "にしがはち", std: "に かける よん は はち" },
+                    { num1: 2, num2: 5, ans: 10, chant: "にごじゅう", std: "に かける ご は じゅう" },
+                    { num1: 2, num2: 6, ans: 12, chant: "にろくじゅうに", std: "に かける ろく は じゅうに" },
+                    { num1: 2, num2: 7, ans: 14, chant: "にしちじゅうし", std: "に かける なな は じゅうよん" },
+                    { num1: 2, num2: 8, ans: 16, chant: "にはちじゅうろく", std: "に かける はち は じゅうろく" },
+                    { num1: 2, num2: 9, ans: 18, chant: "にくじゅうはち", std: "に かける きゅう は じゅうはち" }
+                ]
+            },
+            3: {
+                title: "3の段", color: "from-amber-400 to-yellow-500", bgLight: "bg-amber-50", textCol: "text-amber-600", borderCol: "border-amber-300", icon: "fa-cat",
+                items: [
+                    { num1: 3, num2: 1, ans: 3, chant: "さんいちがさん", std: "さん かける いち は さん" },
+                    { num1: 3, num2: 2, ans: 6, chant: "さんにがろく", std: "さん かける に は ろく" },
+                    { num1: 3, num2: 3, ans: 9, chant: "さざんかがく", std: "さん かける さん は きゅう" },
+                    { num1: 3, num2: 4, ans: 12, chant: "さんしじゅうに", std: "さん かける よん は じゅうに" },
+                    { num1: 3, num2: 5, ans: 15, chant: "さんごじゅうご", std: "さん かける ご は じゅうご" },
+                    { num1: 3, num2: 6, ans: 18, chant: "さんろくじゅうはち", std: "さん かける ろく は じゅうはち" },
+                    { num1: 3, num2: 7, ans: 21, chant: "さんしちにじゅういち", std: "さん かける なな は にじゅういち" },
+                    { num1: 3, num2: 8, ans: 24, chant: "さんぱにじゅうし", std: "さん かける はち は にじゅうよん" },
+                    { num1: 3, num2: 9, ans: 27, chant: "さんくにじゅうしち", std: "さん かける きゅう は にじゅうなな" }
+                ]
+            },
+            4: {
+                title: "4の段", color: "from-emerald-400 to-green-500", bgLight: "bg-emerald-50", textCol: "text-emerald-600", borderCol: "border-emerald-300", icon: "fa-clover",
+                items: [
+                    { num1: 4, num2: 1, ans: 4, chant: "しいちがし", std: "よん かける いち は よん" },
+                    { num1: 4, num2: 2, ans: 8, chant: "しにがはち", std: "よん かける に は はち" },
+                    { num1: 4, num2: 3, ans: 12, chant: "しさんじゅうに", std: "よん かける さん は じゅうに" },
+                    { num1: 4, num2: 4, ans: 16, chant: "ししじゅうろく", std: "よん かける よん は じゅうろく" },
+                    { num1: 4, num2: 5, ans: 20, chant: "しごにじゅう", std: "よん かける ご は にじゅう" },
+                    { num1: 4, num2: 6, ans: 24, chant: "しろくにじゅうし", std: "よん かける ろく は にじゅうよん" },
+                    { num1: 4, num2: 7, ans: 28, chant: "ししちにじゅうはち", std: "よん かける なな は にじゅうはち" },
+                    { num1: 4, num2: 8, ans: 32, chant: "しはちさんじゅうに", std: "よん かける はち は さんじゅうに" },
+                    { num1: 4, num2: 9, ans: 36, chant: "しくさんじゅうろく", std: "よん かける きゅう は さんじゅうろく" }
+                ]
+            },
+            5: {
+                title: "5の段", color: "from-teal-400 to-cyan-500", bgLight: "bg-teal-50", textCol: "text-teal-600", borderCol: "border-teal-300", icon: "fa-hand",
+                items: [
+                    { num1: 5, num2: 1, ans: 5, chant: "ごいちがご", std: "ご かける いち は ご" },
+                    { num1: 5, num2: 2, ans: 10, chant: "ごにじゅう", std: "ご かける に は じゅう" },
+                    { num1: 5, num2: 3, ans: 15, chant: "ごさんじゅうご", std: "ご かける さん は じゅうご" },
+                    { num1: 5, num2: 4, ans: 20, chant: "ごしにじゅう", std: "ご かける よん は にじゅう" },
+                    { num1: 5, num2: 5, ans: 25, chant: "ごごにじゅうご", std: "ご かける ご は にじゅうご" },
+                    { num1: 5, num2: 6, ans: 30, chant: "ごろくさんじゅう", std: "ご かける ろく は さんじゅう" },
+                    { num1: 5, num2: 7, ans: 35, chant: "ごしちさんじゅうご", std: "ご かける なな は さんじゅうご" },
+                    { num1: 5, num2: 8, ans: 40, chant: "ごはちしじゅう", std: "ご かける はち は よんじゅう" },
+                    { num1: 5, num2: 9, ans: 45, chant: "ごくしじゅうご", std: "ご かける きゅう は よんじゅうご" }
+                ]
+            },
+            6: {
+                title: "6の段", color: "from-sky-400 to-blue-500", bgLight: "bg-sky-50", textCol: "text-sky-600", borderCol: "border-sky-300", icon: "fa-robot",
+                items: [
+                    { num1: 6, num2: 1, ans: 6, chant: "ろくいちがろく", std: "ろく かける いち は ろく" },
+                    { num1: 6, num2: 2, ans: 12, chant: "ろくにじゅうに", std: "ろく かける に は じゅうに" },
+                    { num1: 6, num2: 3, ans: 18, chant: "ろくさんじゅうはち", std: "ろく かける さん は じゅうはち" },
+                    { num1: 6, num2: 4, ans: 24, chant: "ろくしにじゅうし", std: "ろく かける よん は にじゅうよん" },
+                    { num1: 6, num2: 5, ans: 30, chant: "ろくごさんじゅう", std: "ろく かける ご は さんじゅう" },
+                    { num1: 6, num2: 6, ans: 36, chant: "ろくろくさんじゅうろく", std: "ろく かける ろく は さんじゅうろく" },
+                    { num1: 6, num2: 7, ans: 42, chant: "ろくしちしじゅうに", std: "ろく かける なな は よんじゅうに" },
+                    { num1: 6, num2: 8, ans: 48, chant: "ろくはちしじゅうはち", std: "ろく かける はち は よんじゅうはち" },
+                    { num1: 6, num2: 9, ans: 54, chant: "ろくくごじゅうし", std: "ろく かける きゅう は ごじゅうよん" }
+                ]
+            },
+            7: {
+                title: "7の段", color: "from-indigo-400 to-indigo-600", bgLight: "bg-indigo-50", textCol: "text-indigo-600", borderCol: "border-indigo-300", icon: "fa-rocket",
+                items: [
+                    { num1: 7, num2: 1, ans: 7, chant: "しちいちがしち", std: "なな かける いち は なな" },
+                    { num1: 7, num2: 2, ans: 14, chant: "しちにじゅうし", std: "なな かける に は じゅうよん" },
+                    { num1: 7, num2: 3, ans: 21, chant: "しちさんにじゅういち", std: "なな かける さん は にじゅういち" },
+                    { num1: 7, num2: 4, ans: 28, chant: "しちちにじゅうはち", std: "なな かける よん は にじゅうはち" },
+                    { num1: 7, num2: 5, ans: 35, chant: "しちごさんじゅうご", std: "なな かける ご は さんじゅうご" },
+                    { num1: 7, num2: 6, ans: 42, chant: "しちろくしじゅうに", std: "なな かける ろく は よんじゅうに" },
+                    { num1: 7, num2: 7, ans: 49, chant: "しちしちしじゅうく", std: "なな かける なな は よんじゅうきゅう" },
+                    { num1: 7, num2: 8, ans: 56, chant: "しちはちごじゅうろく", std: "なな かける はち は ごじゅうろく" },
+                    { num1: 7, num2: 9, ans: 63, chant: "しちくろくじゅうさん", std: "なな かける きゅう は ろくじゅうさん" }
+                ]
+            },
+            8: {
+                title: "8の段", color: "from-purple-400 to-violet-600", bgLight: "bg-purple-50", textCol: "text-purple-600", borderCol: "border-purple-300", icon: "fa-crown",
+                items: [
+                    { num1: 8, num2: 1, ans: 8, chant: "はちいちがはち", std: "はち かける いち は はち" },
+                    { num1: 8, num2: 2, ans: 16, chant: "はちにじゅうろく", std: "はち かける に は じゅうろく" },
+                    { num1: 8, num2: 3, ans: 24, chant: "はちさんにじゅうし", std: "はち かける さん は にじゅうよん" },
+                    { num1: 8, num2: 4, ans: 32, chant: "はちしさんじゅうに", std: "はち かける よん は さんじゅうに" },
+                    { num1: 8, num2: 5, ans: 40, chant: "はちごしじゅう", std: "はち かける ご は よんじゅう" },
+                    { num1: 8, num2: 6, ans: 48, chant: "はちろくしじゅうはち", std: "はち かける ろく は よんじゅうはち" },
+                    { num1: 8, num2: 7, ans: 56, chant: "はちしちごじゅうろく", std: "はち かける なな は ごじゅうろく" },
+                    { num1: 8, num2: 8, ans: 64, chant: "はっぱろくじゅうし", std: "はち かける はち は ろくじゅうよん" },
+                    { num1: 8, num2: 9, ans: 72, chant: "はちくしちじゅうに", std: "はち かける きゅう は ななじゅうに" }
+                ]
+            },
+            9: {
+                title: "9の段", color: "from-fuchsia-400 to-pink-600", bgLight: "bg-fuchsia-50", textCol: "text-fuchsia-600", borderCol: "border-fuchsia-300", icon: "fa-dragon",
+                items: [
+                    { num1: 9, num2: 1, ans: 9, chant: "くいちがく", std: "きゅう かける いち は きゅう" },
+                    { num1: 9, num2: 2, ans: 18, chant: "くにじゅうはち", std: "きゅう かける に は じゅうはち" },
+                    { num1: 9, num2: 3, ans: 27, chant: "くさんにじゅうしち", std: "きゅう かける さん は にじゅうなな" },
+                    { num1: 9, num2: 4, ans: 36, chant: "くしさんじゅうろく", std: "きゅう かける よん は さんじゅうろく" },
+                    { num1: 9, num2: 5, ans: 45, chant: "くごしじゅうご", std: "きゅう かける ご は よんじゅうご" },
+                    { num1: 9, num2: 6, ans: 54, chant: "くろくごじゅうし", std: "きゅう かける ろく は ごじゅうよん" },
+                    { num1: 9, num2: 7, ans: 63, chant: "くしちろくじゅうさん", std: "きゅう かける なな は ろくじゅうさん" },
+                    { num1: 9, num2: 8, ans: 72, chant: "くはちしじゅうに", std: "きゅう かける はち は ななじゅうに" },
+                    { num1: 9, num2: 9, ans: 81, chant: "くくはちじゅういち", std: "きゅう かける きゅう は はちじゅういち" }
+                ]
+            }
+        };
+
+        // GLOBAL APP STATE
+        let currentDan = 2;
+        let currentIndex = 0;
+        let isPlaying = false;
+        let chantStyle = "chant"; // 'chant' or 'standard'
+        let speedRate = 1.0;
+        let isRepeat = false;
+        let timerId = null;
+
+        // Web Audio Synthesizer for Rhythm Sound Effects
+        let audioCtx = null;
+
+        // Quiz State
+        let quizIndex = 0;
+        let quizItems = [];
+        let quizScore = 0;
+
+        // LocalStorage Stamps
+        let clearedStamps = JSON.parse(localStorage.getItem('kuku_cleared_stamps') || '{}');
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Sound synthesizer function (Web Audio API)
+        function playBeatSound(type = 'pop') {
+            try {
+                initAudioContext();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'tick') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+                    osc.start(now);
+                    osc.stop(now + 0.04);
+                } else if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.setValueAtTime(150, now + 0.15);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {
+                console.warn("Audio Context init error:", e);
+            }
+        }
+
+        // Speech Synthesis Wrapper
+        function speakText(text, rate = 1.0, onEndCallback) {
+            if (!('speechSynthesis' in window)) {
+                if (onEndCallback) setTimeout(onEndCallback, 1500 / rate);
+                return;
+            }
+
+            window.speechSynthesis.cancel(); // Stop current speech
+
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'ja-JP';
+            utter.rate = rate;
+            utter.pitch = 1.1; // Slightly cheerful pitch
+
+            utter.onend = () => {
+                if (onEndCallback) onEndCallback();
+            };
+
+            utter.onerror = (e) => {
+                console.warn("Speech error:", e);
+                if (onEndCallback) onEndCallback();
+            };
+
+            window.speechSynthesis.speak(utter);
+        }
+
+        // Initialize UI components
+        function initApp() {
+            renderStageGrid();
+            renderMiniItemsGrid();
+            updateCardDisplay();
+            renderStampsGrid();
+        }
+
+        // Render stage choice buttons (1 ~ 9)
+        function renderStageGrid() {
+            const grid = document.getElementById('stage-grid');
+            grid.innerHTML = '';
+
+            for (let dan = 1; dan <= 9; dan++) {
+                const data = KUKU_DATA[dan];
+                const isCleared = !!clearedStamps[dan];
+
+                const card = document.createElement('div');
+                card.className = `glass-card rounded-3xl p-4 flex flex-col items-center justify-between shadow-sm hover:shadow-md transition-all cursor-pointer border-2 hover:border-amber-400 group relative overflow-hidden`;
+                card.onclick = () => selectStage(dan);
+
+                card.innerHTML = `
+                    <div class="absolute -right-3 -bottom-3 text-6xl text-slate-100 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid ${data.icon}"></i>
+                    </div>
+                    <div class="w-full flex justify-between items-center mb-2">
+                        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr ${data.color} text-white font-black text-sm flex items-center justify-center shadow-sm">
+                            ${dan}
+                        </span>
+                        ${isCleared ? `<span class="text-amber-500 text-sm"><i class="fa-solid fa-crown"></i></span>` : ''}
+                    </div>
+                    <div class="text-center my-2 relative z-10">
+                        <h3 class="text-xl font-black text-slate-800">${data.title}</h3>
+                        <p class="text-xs text-slate-500 font-bold">${dan} × 1 ～ ${dan} × 9</p>
+                    </div>
+                    <button class="w-full mt-2 py-2 rounded-2xl bg-slate-100 group-hover:bg-amber-500 group-hover:text-white text-slate-700 font-bold text-xs transition-all flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>すたーと</span>
+                    </button>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function selectStage(dan) {
+            initAudioContext();
+            currentDan = dan;
+            currentIndex = 0;
+            pausePlay();
+            
+            // Update UI badges & style
+            const data = KUKU_DATA[dan];
+            const badge = document.getElementById('player-stage-badge');
+            badge.innerText = data.title;
+            badge.className = `px-4 py-1.5 text-white rounded-2xl font-black text-sm shadow-md bg-gradient-to-r ${data.color}`;
+
+            document.getElementById('card-bg-icon').innerHTML = `<i class="fa-solid ${data.icon}"></i>`;
+
+            renderMiniItemsGrid();
+            updateCardDisplay();
+            switchView('player');
+        }
+
+        function renderMiniItemsGrid() {
+            const grid = document.getElementById('mini-items-grid');
+            grid.innerHTML = '';
+            const items = KUKU_DATA[currentDan].items;
+
+            items.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                const isActive = idx === currentIndex;
+                btn.className = `py-1.5 text-xs font-black rounded-xl transition-all ${
+                    isActive 
+                        ? 'bg-amber-500 text-white shadow-md scale-105 ring-2 ring-amber-300' 
+                        : 'bg-white/60 hover:bg-white text-slate-600 border border-slate-200'
+                }`;
+                btn.innerText = `×${item.num2}`;
+                btn.onclick = () => {
+                    pausePlay();
+                    currentIndex = idx;
+                    updateCardDisplay();
+                    playCurrentStepSpeech();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateCardDisplay() {
+            const data = KUKU_DATA[currentDan];
+            const item = data.items[currentIndex];
+
+            // Formula
+            document.getElementById('card-formula').innerHTML = `
+                <span>${item.num1}</span>
+                <span class="${data.textCol} mx-1">×</span>
+                <span>${item.num2}</span>
+                <span class="text-slate-400 mx-1">=</span>
+                <span class="text-amber-600">${item.ans}</span>
+            `;
+
+            // Chant Text
+            const chantElement = document.getElementById('card-chant');
+            chantElement.innerText = chantStyle === 'chant' ? item.chant : item.std;
+
+            // Progress text and bar
+            document.getElementById('progress-text').innerText = `${currentIndex + 1} / 9`;
+            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / 9) * 100}%`;
+
+            renderMiniItemsGrid();
+        }
+
+        // Visual Beat Animation
+        function animateBeatDots(callback) {
+            const d1 = document.getElementById('beat-dot-1');
+            const d2 = document.getElementById('beat-dot-2');
+            const d3 = document.getElementById('beat-dot-3');
+            const card = document.getElementById('main-card');
+
+            // Reset
+            [d1, d2, d3].forEach(d => d.className = "w-3 h-3 rounded-full bg-slate-200 transition-all");
+
+            card.classList.remove('animate-beat');
+            void card.offsetWidth; // Trigger reflow
+            card.classList.add('animate-beat');
+
+            playBeatSound('pop');
+            d1.className = "w-3 h-3 rounded-full bg-amber-500 scale-125 shadow-sm";
+
+            setTimeout(() => {
+                playBeatSound('tick');
+                d2.className = "w-3 h-3 rounded-full bg-amber-500 scale-125 shadow-sm";
+            }, 180 / speedRate);
+
+            setTimeout(() => {
+                playBeatSound('tick');
+                d3.className = "w-3 h-3 rounded-full bg-amber-500 scale-125 shadow-sm";
+                if (callback) callback();
+            }, 360 / speedRate);
+        }
+
+        // Play single step speech with rhythmic intro
+        function playCurrentStepSpeech() {
+            const item = KUKU_DATA[currentDan].items[currentIndex];
+            const textToSpeak = chantStyle === 'chant' ? item.chant : item.std;
+
+            animateBeatDots(() => {
+                speakText(textToSpeak, speedRate, () => {
+                    if (isPlaying) {
+                        // Advance to next step
+                        timerId = setTimeout(() => {
+                            if (currentIndex < 8) {
+                                currentIndex++;
+                                updateCardDisplay();
+                                playCurrentStepSpeech();
+                            } else {
+                                if (isRepeat) {
+                                    currentIndex = 0;
+                                    updateCardDisplay();
+                                    playCurrentStepSpeech();
+                                } else {
+                                    pausePlay();
+                                    // Finished full round!
+                                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                                    playBeatSound('correct');
+                                }
+                            }
+                        }, 500 / speedRate);
+                    }
+                });
+            });
+        }
+
+        // Playback Controls
+        function togglePlay() {
+            initAudioContext();
+            if (isPlaying) {
+                pausePlay();
+            } else {
+                startPlay();
+            }
+        }
+
+        function startPlay() {
+            isPlaying = true;
+            document.getElementById('play-icon').className = "fa-solid fa-pause";
+            document.getElementById('play-btn').classList.add('ring-4', 'ring-amber-300');
+            playCurrentStepSpeech();
+        }
+
+        function pausePlay() {
+            isPlaying = false;
+            if (timerId) clearTimeout(timerId);
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            
+            const playIcon = document.getElementById('play-icon');
+            if (playIcon) playIcon.className = "fa-solid fa-play ml-1";
+            
+            const playBtn = document.getElementById('play-btn');
+            if (playBtn) playBtn.classList.remove('ring-4', 'ring-amber-300');
+        }
+
+        function nextStep() {
+            pausePlay();
+            currentIndex = (currentIndex + 1) % 9;
+            updateCardDisplay();
+            playCurrentStepSpeech();
+        }
+
+        function prevStep() {
+            pausePlay();
+            currentIndex = (currentIndex - 1 + 9) % 9;
+            updateCardDisplay();
+            playCurrentStepSpeech();
+        }
+
+        function changeSpeed(val) {
+            const rates = { slow: 0.7, normal: 1.0, fast: 1.3, super: 1.6 };
+            speedRate = rates[val] || 1.0;
+            if (isPlaying) {
+                pausePlay();
+                startPlay();
+            }
+        }
+
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            const btn = document.getElementById('repeat-btn');
+            if (isRepeat) {
+                btn.className = "px-3 py-1 rounded-xl bg-amber-500 text-white font-bold flex items-center gap-1.5 shadow-sm";
+            } else {
+                btn.className = "px-3 py-1 rounded-xl bg-slate-100 text-slate-600 font-bold flex items-center gap-1.5 transition-all";
+            }
+        }
+
+        function setChantStyle(style) {
+            chantStyle = style;
+            const btnChant = document.getElementById('mode-chant');
+            const btnStd = document.getElementById('mode-standard');
+
+            if (style === 'chant') {
+                btnChant.className = "px-3 py-1.5 rounded-xl font-bold text-xs transition-all bg-white text-slate-800 shadow-sm";
+                btnStd.className = "px-3 py-1.5 rounded-xl font-bold text-xs transition-all text-slate-500 hover:text-slate-800";
+            } else {
+                btnStd.className = "px-3 py-1.5 rounded-xl font-bold text-xs transition-all bg-white text-slate-800 shadow-sm";
+                btnChant.className = "px-3 py-1.5 rounded-xl font-bold text-xs transition-all text-slate-500 hover:text-slate-800";
+            }
+
+            updateCardDisplay();
+        }
+
+        // QUIZ SYSTEM LOGIC
+        function startQuizForCurrentDan() {
+            pausePlay();
+            quizIndex = 0;
+            quizScore = 0;
+
+            // Generate shuffled items for quiz
+            const items = [...KUKU_DATA[currentDan].items];
+            // Shuffle
+            quizItems = items.sort(() => Math.random() - 0.5);
+
+            document.getElementById('quiz-stage-badge').innerText = `${KUKU_DATA[currentDan].title} たしかめテスト`;
+            switchView('quiz');
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            if (quizIndex >= quizItems.length) {
+                // Quiz completed!
+                finishQuiz();
+                return;
+            }
+
+            const current = quizItems[quizIndex];
+            document.getElementById('quiz-q-num').innerText = `だい ${quizIndex + 1} もん / ぜん ${quizItems.length} もん`;
+            document.getElementById('quiz-score-count').innerHTML = `<i class="fa-solid fa-star"></i> ${quizScore} てん`;
+            document.getElementById('quiz-question').innerHTML = `${current.num1} × ${current.num2} = ?`;
+
+            // Generate 4 choices
+            const choices = [current.ans];
+            while (choices.length < 4) {
+                // Generate reasonable distractor numbers
+                let wrong = current.ans + (Math.floor(Math.random() * 5) - 2) * current.num1;
+                if (wrong <= 0 || choices.includes(wrong)) {
+                    wrong = Math.floor(Math.random() * 81) + 1;
+                }
+                if (!choices.includes(wrong)) {
+                    choices.push(wrong);
+                }
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            const optionsGrid = document.getElementById('quiz-options');
+            optionsGrid.innerHTML = '';
+
+            choices.forEach(ansVal => {
+                const btn = document.createElement('button');
+                btn.className = "py-4 bg-white hover:bg-amber-50 active:scale-95 text-slate-800 font-black text-2xl rounded-2xl border-2 border-slate-200 shadow-sm transition-all hover:border-amber-400";
+                btn.innerText = ansVal;
+                btn.onclick = () => handleAnswerChoice(ansVal, current.ans, btn);
+                optionsGrid.appendChild(btn);
+            });
+
+            // Speak question sound
+            speakText(`${current.num1} かける ${current.num2} は？`, 1.1);
+        }
+
+        function handleAnswerChoice(selected, correct, btnElem) {
+            const allBtns = document.querySelectorAll('#quiz-options button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                playBeatSound('correct');
+                btnElem.className = "py-4 bg-emerald-500 text-white font-black text-2xl rounded-2xl border-2 border-emerald-600 shadow-md animate-bounce";
+                quizScore += 10;
+                confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+            } else {
+                playBeatSound('wrong');
+                btnElem.className = "py-4 bg-rose-500 text-white font-black text-2xl rounded-2xl border-2 border-rose-600 shadow-md";
+                
+                // Highlight correct
+                allBtns.forEach(b => {
+                    if (parseInt(b.innerText) === correct) {
+                        b.className = "py-4 bg-emerald-100 text-emerald-800 font-black text-2xl rounded-2xl border-2 border-emerald-400";
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                quizIndex++;
+                renderQuizQuestion();
+            }, 1200);
+        }
+
+        function finishQuiz() {
+            const isPerfect = quizScore === 90;
+            
+            // Save Stamp
+            if (isPerfect || quizScore >= 70) {
+                clearedStamps[currentDan] = true;
+                localStorage.setItem('kuku_cleared_stamps', JSON.stringify(clearedStamps));
+                renderStageGrid();
+                renderStampsGrid();
+            }
+
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            const optionsGrid = document.getElementById('quiz-options');
+            optionsGrid.innerHTML = `
+                <div class="col-span-2 space-y-4 py-4 text-center">
+                    <div class="text-3xl font-black ${quizScore >= 70 ? 'text-amber-500' : 'text-slate-700'}">
+                        ${quizScore >= 70 ? '🎉 ごうかく！ おめでとう！' : '💪 もうすこし！ がんばろう！'}
+                    </div>
+                    <p class="text-sm font-bold text-slate-500">てんすう: ${quizScore} / 90 てん</p>
+                    <div class="flex gap-2 justify-center pt-2">
+                        <button onclick="startQuizForCurrentDan()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-2xl shadow-md">
+                            もういちど挑戦
+                        </button>
+                        <button onclick="switchView('menu')" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm rounded-2xl">
+                            メニューへ
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openStampModal() {
+            renderStampsGrid();
+            document.getElementById('stamp-modal').classList.remove('hidden');
+        }
+
+        function closeStampModal() {
+            document.getElementById('stamp-modal').classList.add('hidden');
+        }
+
+        function renderStampsGrid() {
+            const grid = document.getElementById('stamps-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            for (let dan = 1; dan <= 9; dan++) {
+                const isCleared = !!clearedStamps[dan];
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-2xl border-2 flex flex-col items-center justify-center text-center space-y-1 ${
+                    isCleared 
+                        ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm' 
+                        : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60'
+                }`;
+
+                card.innerHTML = `
+                    <div class="text-2xl">
+                        ${isCleared ? '<i class="fa-solid fa-certificate text-amber-500"></i>' : '<i class="fa-solid fa-lock text-slate-300"></i>'}
+                    </div>
+                    <span class="font-black text-xs">${dan}の段</span>
+                    <span class="text-[10px] font-bold">${isCleared ? 'クリア！' : 'みかんりょう'}</span>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        // View Switching Controller
+        function switchView(viewName) {
+            pausePlay();
+            document.getElementById('view-menu').classList.add('hidden');
+            document.getElementById('view-player').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+
+            if (viewName === 'menu') {
+                document.getElementById('view-menu').classList.remove('hidden');
+            } else if (viewName === 'player') {
+                document.getElementById('view-player').classList.remove('hidden');
+                document.getElementById('view-player').classList.add('flex');
+            } else if (viewName === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+                document.getElementById('view-quiz').classList.add('flex');
+            }
+        }
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
