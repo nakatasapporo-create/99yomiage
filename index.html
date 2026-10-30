@@ -101,13 +101,19 @@
         <!-- VIEW 1: STAGE SELECTOR (MENU) -->
         <section id="view-menu" class="space-y-6">
             <div class="text-center space-y-2">
-                <span class="inline-block px-4 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold shadow-sm">
+                <span class="inline-block px-4 py-1 bg-amber-100 text-amber-800 rounded-full text-xs sm:text-sm font-bold shadow-sm">
                     🎵 すきな「だん」をえらぼう！
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-black text-slate-800">
                     なんの段をれんしゅうする？
                 </h2>
             </div>
+
+            <!-- ALL DAN CONTINUOUS PLAY BUTTON -->
+            <button onclick="startAllDanPlay()" class="w-full py-4 px-6 bg-gradient-to-r from-purple-600 via-pink-500 to-amber-500 hover:from-purple-700 hover:to-amber-600 text-white rounded-3xl font-black text-base sm:text-xl shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-all cursor-pointer">
+                <i class="fa-solid fa-circle-play text-2xl"></i>
+                <span>1〜9の段を ぜんぶ読み上げる！（連続再生）</span>
+            </button>
 
             <!-- Stage Grid 1 to 9 -->
             <div id="stage-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -305,132 +311,132 @@
     </footer>
 
     <script>
-        // KUKU DATA DEFINITION
+        // KUKU MASTER DATA DEFINITION (1 to 9)
         const KUKU_DATA = {
             1: {
-                title: "1の段", color: "from-pink-400 to-rose-500", bgLight: "bg-rose-50", textCol: "text-rose-600", borderCol: "border-rose-300", icon: "fa-apple-whole",
+                title: "1の段", sample: "いんいちがいん", color: "from-amber-400 to-orange-400", icon: "fa-star",
                 items: [
-                    { num1: 1, num2: 1, ans: 1, chant: "いんいちがいち", std: "いち かける いち は いち" },
-                    { num1: 1, num2: 2, ans: 2, chant: "いんにがに", std: "いち かける に は に" },
-                    { num1: 1, num2: 3, ans: 3, chant: "いんさんがさん", std: "いち かける さん は さん" },
-                    { num1: 1, num2: 4, ans: 4, chant: "いんしがし", std: "いち かける よん は よん" },
-                    { num1: 1, num2: 5, ans: 5, chant: "いんごがご", std: "いち かける ご は ご" },
-                    { num1: 1, num2: 6, ans: 6, chant: "いんろくがろく", std: "いち かける ろく は ろく" },
-                    { num1: 1, num2: 7, ans: 7, chant: "いんしちがしち", std: "いち かける なな は なな" },
-                    { num1: 1, num2: 8, ans: 8, chant: "いんはちがはち", std: "いち かける はち は はち" },
-                    { num1: 1, num2: 9, ans: 9, chant: "いんくがく", std: "いち かける きゅう は きゅう" }
+                    { num1: 1, num2: 1, ans: 1, chant: "いんいちがいん", std: "1 かける 1 は 1" },
+                    { num1: 1, num2: 2, ans: 2, chant: "いんにがに", std: "1 かける 2 は 2" },
+                    { num1: 1, num2: 3, ans: 3, chant: "いんさんがさん", std: "1 かける 3 は 3" },
+                    { num1: 1, num2: 4, ans: 4, chant: "いんしがし", std: "1 かける 4 は 4" },
+                    { num1: 1, num2: 5, ans: 5, chant: "いんごがご", std: "1 かける 5 は 5" },
+                    { num1: 1, num2: 6, ans: 6, chant: "いんろくがろく", std: "1 かける 6 は 6" },
+                    { num1: 1, num2: 7, ans: 7, chant: "いんしちがしち", std: "1 かける 7 は 7" },
+                    { num1: 1, num2: 8, ans: 8, chant: "いんはちがはち", std: "1 かける 8 は 8" },
+                    { num1: 1, num2: 9, ans: 9, chant: "いんくがく", std: "1 かける 9 は 9" }
                 ]
             },
             2: {
-                title: "2の段", color: "from-orange-400 to-amber-500", bgLight: "bg-orange-50", textCol: "text-orange-600", borderCol: "border-orange-300", icon: "fa-car",
+                title: "2の段", sample: "ににんがし", color: "from-orange-400 to-rose-400", icon: "fa-heart",
                 items: [
-                    { num1: 2, num2: 1, ans: 2, chant: "にいちがに", std: "に かける いち は に" },
-                    { num1: 2, num2: 2, ans: 4, chant: "ににんがし", std: "に かける に は よん" },
-                    { num1: 2, num2: 3, ans: 6, chant: "にかろく", std: "に かける さん は ろく" },
-                    { num1: 2, num2: 4, ans: 8, chant: "にしがはち", std: "に かける よん は はち" },
-                    { num1: 2, num2: 5, ans: 10, chant: "にごじゅう", std: "に かける ご は じゅう" },
-                    { num1: 2, num2: 6, ans: 12, chant: "にろくじゅうに", std: "に かける ろく は じゅうに" },
-                    { num1: 2, num2: 7, ans: 14, chant: "にしちじゅうし", std: "に かける なな は じゅうよん" },
-                    { num1: 2, num2: 8, ans: 16, chant: "にはちじゅうろく", std: "に かける はち は じゅうろく" },
-                    { num1: 2, num2: 9, ans: 18, chant: "にくじゅうはち", std: "に かける きゅう は じゅうはち" }
+                    { num1: 2, num2: 1, ans: 2, chant: "にいちがに", std: "2 かける 1 は 2" },
+                    { num1: 2, num2: 2, ans: 4, chant: "ににんがし", std: "2 かける 2 は 4" },
+                    { num1: 2, num2: 3, ans: 6, chant: "にさんがろく", std: "2 かける 3 は 6" },
+                    { num1: 2, num2: 4, ans: 8, chant: "にしがはち", std: "2 かける 4 は 8" },
+                    { num1: 2, num2: 5, ans: 10, chant: "にごじゅう", std: "2 かける 5 は 10" },
+                    { num1: 2, num2: 6, ans: 12, chant: "にろくじゅうに", std: "2 かける 6 は 12" },
+                    { num1: 2, num2: 7, ans: 14, chant: "にしちじゅうし", std: "2 かける 7 は 14" },
+                    { num1: 2, num2: 8, ans: 16, chant: "にはちじゅうろく", std: "2 かける 8 は 16" },
+                    { num1: 2, num2: 9, ans: 18, chant: "にくじゅうはち", std: "2 かける 9 は 18" }
                 ]
             },
             3: {
-                title: "3の段", color: "from-amber-400 to-yellow-500", bgLight: "bg-amber-50", textCol: "text-amber-600", borderCol: "border-amber-300", icon: "fa-cat",
+                title: "3の段", sample: "さざんがく", color: "from-emerald-400 to-teal-500", icon: "fa-leaf",
                 items: [
-                    { num1: 3, num2: 1, ans: 3, chant: "さんいちがさん", std: "さん かける いち は さん" },
-                    { num1: 3, num2: 2, ans: 6, chant: "さんにがろく", std: "さん かける に は ろく" },
-                    { num1: 3, num2: 3, ans: 9, chant: "さざんかがく", std: "さん かける さん は きゅう" },
-                    { num1: 3, num2: 4, ans: 12, chant: "さんしじゅうに", std: "さん かける よん は じゅうに" },
-                    { num1: 3, num2: 5, ans: 15, chant: "さんごじゅうご", std: "さん かける ご は じゅうご" },
-                    { num1: 3, num2: 6, ans: 18, chant: "さんろくじゅうはち", std: "さん かける ろく は じゅうはち" },
-                    { num1: 3, num2: 7, ans: 21, chant: "さんしちにじゅういち", std: "さん かける なな は にじゅういち" },
-                    { num1: 3, num2: 8, ans: 24, chant: "さんぱにじゅうし", std: "さん かける はち は にじゅうよん" },
-                    { num1: 3, num2: 9, ans: 27, chant: "さんくにじゅうしち", std: "さん かける きゅう は にじゅうなな" }
+                    { num1: 3, num2: 1, ans: 3, chant: "さんいちがさん", std: "3 かける 1 は 3" },
+                    { num1: 3, num2: 2, ans: 6, chant: "さんにがろく", std: "3 かける 2 は 6" },
+                    { num1: 3, num2: 3, ans: 9, chant: "さざんがく", std: "3 かける 3 は 9" },
+                    { num1: 3, num2: 4, ans: 12, chant: "さんしじゅうに", std: "3 かける 4 は 12" },
+                    { num1: 3, num2: 5, ans: 15, chant: "さんごじゅうご", std: "3 かける 5 は 15" },
+                    { num1: 3, num2: 6, ans: 18, chant: "さんろくじゅうはち", std: "3 かける 6 は 18" },
+                    { num1: 3, num2: 7, ans: 21, chant: "さんしちにじゅういち", std: "3 かける 7 は 21" },
+                    { num1: 3, num2: 8, ans: 24, chant: "さんぱにじゅうし", std: "3 かける 8 は 24" },
+                    { num1: 3, num2: 9, ans: 27, chant: "さんくにじゅうしち", std: "3 かける 9 は 27" }
                 ]
             },
             4: {
-                title: "4の段", color: "from-emerald-400 to-green-500", bgLight: "bg-emerald-50", textCol: "text-emerald-600", borderCol: "border-emerald-300", icon: "fa-clover",
+                title: "4の段", sample: "ししじゅうろく", color: "from-cyan-400 to-blue-500", icon: "fa-bolt",
                 items: [
-                    { num1: 4, num2: 1, ans: 4, chant: "しいちがし", std: "よん かける いち は よん" },
-                    { num1: 4, num2: 2, ans: 8, chant: "しにがはち", std: "よん かける に は はち" },
-                    { num1: 4, num2: 3, ans: 12, chant: "しさんじゅうに", std: "よん かける さん は じゅうに" },
-                    { num1: 4, num2: 4, ans: 16, chant: "ししじゅうろく", std: "よん かける よん は じゅうろく" },
-                    { num1: 4, num2: 5, ans: 20, chant: "しごにじゅう", std: "よん かける ご は にじゅう" },
-                    { num1: 4, num2: 6, ans: 24, chant: "しろくにじゅうし", std: "よん かける ろく は にじゅうよん" },
-                    { num1: 4, num2: 7, ans: 28, chant: "ししちにじゅうはち", std: "よん かける なな は にじゅうはち" },
-                    { num1: 4, num2: 8, ans: 32, chant: "しはちさんじゅうに", std: "よん かける はち は さんじゅうに" },
-                    { num1: 4, num2: 9, ans: 36, chant: "しくさんじゅうろく", std: "よん かける きゅう は さんじゅうろく" }
+                    { num1: 4, num2: 1, ans: 4, chant: "しいちがし", std: "4 かける 1 は 4" },
+                    { num1: 4, num2: 2, ans: 8, chant: "しにがはち", std: "4 かける 2 は 8" },
+                    { num1: 4, num2: 3, ans: 12, chant: "しさんじゅうに", std: "4 かける 3 は 12" },
+                    { num1: 4, num2: 4, ans: 16, chant: "ししじゅうろく", std: "4 かける 4 は 16" },
+                    { num1: 4, num2: 5, ans: 20, chant: "しごにじゅう", std: "4 かける 5 は 20" },
+                    { num1: 4, num2: 6, ans: 24, chant: "しろくにじゅうし", std: "4 かける 6 は 24" },
+                    { num1: 4, num2: 7, ans: 28, chant: "ししちにじゅうはち", std: "4 かける 7 は 28" },
+                    { num1: 4, num2: 8, ans: 32, chant: "しはさんじゅうに", std: "4 かける 8 は 32" },
+                    { num1: 4, num2: 9, ans: 36, chant: "しくさんじゅうろく", std: "4 かける 9 は 36" }
                 ]
             },
             5: {
-                title: "5の段", color: "from-teal-400 to-cyan-500", bgLight: "bg-teal-50", textCol: "text-teal-600", borderCol: "border-teal-300", icon: "fa-hand",
+                title: "5の段", sample: "ごごにじゅうご", color: "from-blue-500 to-indigo-500", icon: "fa-sun",
                 items: [
-                    { num1: 5, num2: 1, ans: 5, chant: "ごいちがご", std: "ご かける いち は ご" },
-                    { num1: 5, num2: 2, ans: 10, chant: "ごにじゅう", std: "ご かける に は じゅう" },
-                    { num1: 5, num2: 3, ans: 15, chant: "ごさんじゅうご", std: "ご かける さん は じゅうご" },
-                    { num1: 5, num2: 4, ans: 20, chant: "ごしにじゅう", std: "ご かける よん は にじゅう" },
-                    { num1: 5, num2: 5, ans: 25, chant: "ごごにじゅうご", std: "ご かける ご は にじゅうご" },
-                    { num1: 5, num2: 6, ans: 30, chant: "ごろくさんじゅう", std: "ご かける ろく は さんじゅう" },
-                    { num1: 5, num2: 7, ans: 35, chant: "ごしちさんじゅうご", std: "ご かける なな は さんじゅうご" },
-                    { num1: 5, num2: 8, ans: 40, chant: "ごはちしじゅう", std: "ご かける はち は よんじゅう" },
-                    { num1: 5, num2: 9, ans: 45, chant: "ごくしじゅうご", std: "ご かける きゅう は よんじゅうご" }
+                    { num1: 5, num2: 1, ans: 5, chant: "ごいちがご", std: "5 かける 1 は 5" },
+                    { num1: 5, num2: 2, ans: 10, chant: "ごにじゅう", std: "5 かける 2 は 10" },
+                    { num1: 5, num2: 3, ans: 15, chant: "ごさんじゅうご", std: "5 かける 3 は 15" },
+                    { num1: 5, num2: 4, ans: 20, chant: "ごしにじゅう", std: "5 かける 4 は 20" },
+                    { num1: 5, num2: 5, ans: 25, chant: "ごごにじゅうご", std: "5 かける 5 は 25" },
+                    { num1: 5, num2: 6, ans: 30, chant: "ごろくさんじゅう", std: "5 かける 6 は 30" },
+                    { num1: 5, num2: 7, ans: 35, chant: "ごしちさんじゅうご", std: "5 かける 7 は 35" },
+                    { num1: 5, num2: 8, ans: 40, chant: "ごはしじゅう", std: "5 かける 8 は 40" },
+                    { num1: 5, num2: 9, ans: 45, chant: "ごくしじゅうご", std: "5 かける 9 は 45" }
                 ]
             },
             6: {
-                title: "6の段", color: "from-sky-400 to-blue-500", bgLight: "bg-sky-50", textCol: "text-sky-600", borderCol: "border-sky-300", icon: "fa-robot",
+                title: "6の段", sample: "ろくろくさんじゅうろく", color: "from-indigo-500 to-purple-500", icon: "fa-rocket",
                 items: [
-                    { num1: 6, num2: 1, ans: 6, chant: "ろくいちがろく", std: "ろく かける いち は ろく" },
-                    { num1: 6, num2: 2, ans: 12, chant: "ろくにじゅうに", std: "ろく かける に は じゅうに" },
-                    { num1: 6, num2: 3, ans: 18, chant: "ろくさんじゅうはち", std: "ろく かける さん は じゅうはち" },
-                    { num1: 6, num2: 4, ans: 24, chant: "ろくしにじゅうし", std: "ろく かける よん は にじゅうよん" },
-                    { num1: 6, num2: 5, ans: 30, chant: "ろくごさんじゅう", std: "ろく かける ご は さんじゅう" },
-                    { num1: 6, num2: 6, ans: 36, chant: "ろくろくさんじゅうろく", std: "ろく かける ろく は さんじゅうろく" },
-                    { num1: 6, num2: 7, ans: 42, chant: "ろくしちしじゅうに", std: "ろく かける なな は よんじゅうに" },
-                    { num1: 6, num2: 8, ans: 48, chant: "ろくはちしじゅうはち", std: "ろく かける はち は よんじゅうはち" },
-                    { num1: 6, num2: 9, ans: 54, chant: "ろくくごじゅうし", std: "ろく かける きゅう は ごじゅうよん" }
+                    { num1: 6, num2: 1, ans: 6, chant: "ろくいちがろく", std: "6 かける 1 は 6" },
+                    { num1: 6, num2: 2, ans: 12, chant: "ろくにじゅうに", std: "6 かける 2 は 12" },
+                    { num1: 6, num2: 3, ans: 18, chant: "ろくさんじゅうはち", std: "6 かける 3 は 18" },
+                    { num1: 6, num2: 4, ans: 24, chant: "ろくしにじゅうし", std: "6 かける 4 は 24" },
+                    { num1: 6, num2: 5, ans: 30, chant: "ろくごさんじゅう", std: "6 かける 5 は 30" },
+                    { num1: 6, num2: 6, ans: 36, chant: "ろくろくさんじゅうろく", std: "6 かける 6 は 36" },
+                    { num1: 6, num2: 7, ans: 42, chant: "ろくしちしじゅうに", std: "6 かける 7 は 42" },
+                    { num1: 6, num2: 8, ans: 48, chant: "ろくはしじゅうはち", std: "6 かける 8 は 48" },
+                    { num1: 6, num2: 9, ans: 54, chant: "ろくくごじゅうし", std: "6 かける 9 は 54" }
                 ]
             },
             7: {
-                title: "7の段", color: "from-indigo-400 to-indigo-600", bgLight: "bg-indigo-50", textCol: "text-indigo-600", borderCol: "border-indigo-300", icon: "fa-rocket",
+                title: "7の段", sample: "しちしちしじゅうく", color: "from-purple-500 to-pink-500", icon: "fa-gem",
                 items: [
-                    { num1: 7, num2: 1, ans: 7, chant: "しちいちがしち", std: "なな かける いち は なな" },
-                    { num1: 7, num2: 2, ans: 14, chant: "しちにじゅうし", std: "なな かける に は じゅうよん" },
-                    { num1: 7, num2: 3, ans: 21, chant: "しちさんにじゅういち", std: "なな かける さん は にじゅういち" },
-                    { num1: 7, num2: 4, ans: 28, chant: "しちちにじゅうはち", std: "なな かける よん は にじゅうはち" },
-                    { num1: 7, num2: 5, ans: 35, chant: "しちごさんじゅうご", std: "なな かける ご は さんじゅうご" },
-                    { num1: 7, num2: 6, ans: 42, chant: "しちろくしじゅうに", std: "なな かける ろく は よんじゅうに" },
-                    { num1: 7, num2: 7, ans: 49, chant: "しちしちしじゅうく", std: "なな かける なな は よんじゅうきゅう" },
-                    { num1: 7, num2: 8, ans: 56, chant: "しちはちごじゅうろく", std: "なな かける はち は ごじゅうろく" },
-                    { num1: 7, num2: 9, ans: 63, chant: "しちくろくじゅうさん", std: "なな かける きゅう は ろくじゅうさん" }
+                    { num1: 7, num2: 1, ans: 7, chant: "しちいちがしち", std: "7 かける 1 は 7" },
+                    { num1: 7, num2: 2, ans: 14, chant: "しちにじゅうし", std: "7 かける 2 は 14" },
+                    { num1: 7, num2: 3, ans: 21, chant: "しちさんにじゅういち", std: "7 かける 3 は 21" },
+                    { num1: 7, num2: 4, ans: 28, chant: "しちちにじゅうはち", std: "7 かける 4 は 28" },
+                    { num1: 7, num2: 5, ans: 35, chant: "しちごさんじゅうご", std: "7 かける 5 は 35" },
+                    { num1: 7, num2: 6, ans: 42, chant: "しちろくしじゅうに", std: "7 かける 6 は 42" },
+                    { num1: 7, num2: 7, ans: 49, chant: "しちしちしじゅうく", std: "7 かける 7 は 49" },
+                    { num1: 7, num2: 8, ans: 56, chant: "しちはごじゅうろく", std: "7 かける 8 は 56" },
+                    { num1: 7, num2: 9, ans: 63, chant: "しちくろくじゅうさん", std: "7 かける 9 は 63" }
                 ]
             },
             8: {
-                title: "8の段", color: "from-purple-400 to-violet-600", bgLight: "bg-purple-50", textCol: "text-purple-600", borderCol: "border-purple-300", icon: "fa-crown",
+                title: "8の段", sample: "はっぱろくじゅうし", color: "from-pink-500 to-rose-500", icon: "fa-fire",
                 items: [
-                    { num1: 8, num2: 1, ans: 8, chant: "はちいちがはち", std: "はち かける いち は はち" },
-                    { num1: 8, num2: 2, ans: 16, chant: "はちにじゅうろく", std: "はち かける に は じゅうろく" },
-                    { num1: 8, num2: 3, ans: 24, chant: "はちさんにじゅうし", std: "はち かける さん は にじゅうよん" },
-                    { num1: 8, num2: 4, ans: 32, chant: "はちしさんじゅうに", std: "はち かける よん は さんじゅうに" },
-                    { num1: 8, num2: 5, ans: 40, chant: "はちごしじゅう", std: "はち かける ご は よんじゅう" },
-                    { num1: 8, num2: 6, ans: 48, chant: "はちろくしじゅうはち", std: "はち かける ろく は よんじゅうはち" },
-                    { num1: 8, num2: 7, ans: 56, chant: "はちしちごじゅうろく", std: "はち かける なな は ごじゅうろく" },
-                    { num1: 8, num2: 8, ans: 64, chant: "はっぱろくじゅうし", std: "はち かける はち は ろくじゅうよん" },
-                    { num1: 8, num2: 9, ans: 72, chant: "はちくしちじゅうに", std: "はち かける きゅう は ななじゅうに" }
+                    { num1: 8, num2: 1, ans: 8, chant: "はちいちがはち", std: "8 かける 1 は 8" },
+                    { num1: 8, num2: 2, ans: 16, chant: "はちにじゅうろく", std: "8 かける 2 は 16" },
+                    { num1: 8, num2: 3, ans: 24, chant: "はちさんにじゅうし", std: "8 かける 3 は 24" },
+                    { num1: 8, num2: 4, ans: 32, chant: "はちしさんじゅうに", std: "8 かける 4 は 32" },
+                    { num1: 8, num2: 5, ans: 40, chant: "はちごしじゅう", std: "8 かける 5 は 40" },
+                    { num1: 8, num2: 6, ans: 48, chant: "はちろくしじゅうはち", std: "8 かける 6 は 48" },
+                    { num1: 8, num2: 7, ans: 56, chant: "はちしちごじゅうろく", std: "8 かける 7 は 56" },
+                    { num1: 8, num2: 8, ans: 64, chant: "はっぱろくじゅうし", std: "8 かける 8 は 64" },
+                    { num1: 8, num2: 9, ans: 72, chant: "はちくしちじゅうに", std: "8 かける 9 は 72" }
                 ]
             },
             9: {
-                title: "9の段", color: "from-fuchsia-400 to-pink-600", bgLight: "bg-fuchsia-50", textCol: "text-fuchsia-600", borderCol: "border-fuchsia-300", icon: "fa-dragon",
+                title: "9の段", sample: "くくはちじゅういち", color: "from-amber-500 to-emerald-500", icon: "fa-crown",
                 items: [
-                    { num1: 9, num2: 1, ans: 9, chant: "くいちがく", std: "きゅう かける いち は きゅう" },
-                    { num1: 9, num2: 2, ans: 18, chant: "くにじゅうはち", std: "きゅう かける に は じゅうはち" },
-                    { num1: 9, num2: 3, ans: 27, chant: "くさんにじゅうしち", std: "きゅう かける さん は にじゅうなな" },
-                    { num1: 9, num2: 4, ans: 36, chant: "くしさんじゅうろく", std: "きゅう かける よん は さんじゅうろく" },
-                    { num1: 9, num2: 5, ans: 45, chant: "くごしじゅうご", std: "きゅう かける ご は よんじゅうご" },
-                    { num1: 9, num2: 6, ans: 54, chant: "くろくごじゅうし", std: "きゅう かける ろく は ごじゅうよん" },
-                    { num1: 9, num2: 7, ans: 63, chant: "くしちろくじゅうさん", std: "きゅう かける なな は ろくじゅうさん" },
-                    { num1: 9, num2: 8, ans: 72, chant: "くはちしじゅうに", std: "きゅう かける はち は ななじゅうに" },
-                    { num1: 9, num2: 9, ans: 81, chant: "くくはちじゅういち", std: "きゅう かける きゅう は はちじゅういち" }
+                    { num1: 9, num2: 1, ans: 9, chant: "くいちがく", std: "9 かける 1 は 9" },
+                    { num1: 9, num2: 2, ans: 18, chant: "くにじゅうはち", std: "9 かける 2 は 18" },
+                    { num1: 9, num2: 3, ans: 27, chant: "くさんにじゅうしち", std: "9 かける 3 は 27" },
+                    { num1: 9, num2: 4, ans: 36, chant: "くしさんじゅうろく", std: "9 かける 4 は 36" },
+                    { num1: 9, num2: 5, ans: 45, chant: "くごしじゅうご", std: "9 かける 5 は 45" },
+                    { num1: 9, num2: 6, ans: 54, chant: "くろくごじゅうし", std: "9 かける 6 は 54" },
+                    { num1: 9, num2: 7, ans: 63, chant: "くしちろくじゅうさん", std: "9 かける 7 は 63" },
+                    { num1: 9, num2: 8, ans: 72, chant: "くはちじゅうに", std: "9 かける 8 は 72" },
+                    { num1: 9, num2: 9, ans: 81, chant: "くくはちじゅういち", std: "9 かける 9 は 81" }
                 ]
             }
         };
@@ -439,248 +445,260 @@
         let currentDan = 2;
         let currentIndex = 0;
         let isPlaying = false;
+        let isAllDanMode = false;
         let chantStyle = "chant"; // 'chant' or 'standard'
         let speedRate = 1.0;
         let isRepeat = false;
         let timerId = null;
-
-        // Web Audio Synthesizer for Rhythm Sound Effects
-        let audioCtx = null;
-
-        // Quiz State
-        let quizIndex = 0;
         let quizItems = [];
+        let quizIndex = 0;
         let quizScore = 0;
 
-        // LocalStorage Stamps
-        let clearedStamps = JSON.parse(localStorage.getItem('kuku_cleared_stamps') || '{}');
+        let clearedStamps = {};
+        try {
+            clearedStamps = JSON.parse(localStorage.getItem('kuku_cleared_stamps')) || {};
+        } catch(e) {
+            clearedStamps = {};
+        }
 
+        // AUDIO CONTEXT & SOUND SYNTHESIS
+        let audioCtx = null;
         function initAudioContext() {
             if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
         }
 
-        // Sound synthesizer function (Web Audio API)
-        function playBeatSound(type = 'pop') {
-            try {
-                initAudioContext();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+        function playBeatSound(type) {
+            initAudioContext();
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
-                const now = audioCtx.currentTime;
-
-                if (type === 'pop') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(440, now);
-                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-                    osc.start(now);
-                    osc.stop(now + 0.08);
-                } else if (type === 'tick') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(300, now);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-                    osc.start(now);
-                    osc.stop(now + 0.04);
-                } else if (type === 'correct') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now);
-                    osc.stop(now + 0.4);
-                } else if (type === 'wrong') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(200, now);
-                    osc.frequency.setValueAtTime(150, now + 0.15);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                }
-            } catch (e) {
-                console.warn("Audio Context init error:", e);
+            const now = audioCtx.currentTime;
+            if (type === 'tick') {
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.08);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(180, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
             }
         }
 
-        // Speech Synthesis Wrapper
-        function speakText(text, rate = 1.0, onEndCallback) {
+        function speakText(text, rate, callback) {
             if (!('speechSynthesis' in window)) {
-                if (onEndCallback) setTimeout(onEndCallback, 1500 / rate);
+                if (callback) setTimeout(callback, 1000);
                 return;
             }
 
-            window.speechSynthesis.cancel(); // Stop current speech
-
+            window.speechSynthesis.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'ja-JP';
-            utter.rate = rate;
-            utter.pitch = 1.1; // Slightly cheerful pitch
+            utter.rate = rate || 1.0;
+            utter.pitch = 1.1;
 
-            utter.onend = () => {
-                if (onEndCallback) onEndCallback();
+            let called = false;
+            const onEndHandler = () => {
+                if (!called) {
+                    called = true;
+                    if (callback) callback();
+                }
             };
 
-            utter.onerror = (e) => {
-                console.warn("Speech error:", e);
-                if (onEndCallback) onEndCallback();
+            utter.onend = onEndHandler;
+            utter.onerror = onEndHandler;
+
+            const estDuration = (text.length * 280) / rate + 400;
+            const safetyTimer = setTimeout(() => {
+                if (!called) {
+                    called = true;
+                    window.speechSynthesis.cancel();
+                    if (callback) callback();
+                }
+            }, estDuration);
+
+            utter.onend = () => {
+                clearTimeout(safetyTimer);
+                onEndHandler();
             };
 
             window.speechSynthesis.speak(utter);
         }
 
-        // Initialize UI components
-        function initApp() {
-            renderStageGrid();
-            renderMiniItemsGrid();
-            updateCardDisplay();
-            renderStampsGrid();
+        function animateBeatDots(callback) {
+            const d1 = document.getElementById('beat-dot-1');
+            const d2 = document.getElementById('beat-dot-2');
+            const d3 = document.getElementById('beat-dot-3');
+
+            const resetDots = () => {
+                if(d1) d1.className = "w-3 h-3 rounded-full bg-slate-200 transition-all";
+                if(d2) d2.className = "w-3 h-3 rounded-full bg-slate-200 transition-all";
+                if(d3) d3.className = "w-3 h-3 rounded-full bg-slate-200 transition-all";
+            };
+
+            resetDots();
+            if(d1) d1.className = "w-3.5 h-3.5 rounded-full bg-amber-500 scale-125 transition-all";
+            playBeatSound('tick');
+
+            setTimeout(() => {
+                resetDots();
+                if(d2) d2.className = "w-3.5 h-3.5 rounded-full bg-amber-500 scale-125 transition-all";
+                playBeatSound('tick');
+            }, 150);
+
+            setTimeout(() => {
+                resetDots();
+                if(d3) d3.className = "w-3.5 h-3.5 rounded-full bg-amber-500 scale-125 transition-all";
+                playBeatSound('tick');
+            }, 300);
+
+            setTimeout(() => {
+                resetDots();
+                if (callback) callback();
+            }, 450);
         }
 
-        // Render stage choice buttons (1 ~ 9)
-        function renderStageGrid() {
-            const grid = document.getElementById('stage-grid');
-            grid.innerHTML = '';
+        function updateCardDisplay() {
+            const item = KUKU_DATA[currentDan].items[currentIndex];
+            const formulaElem = document.getElementById('card-formula');
+            const chantElem = document.getElementById('card-chant');
+            const cardElem = document.getElementById('main-card');
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.getElementById('progress-bar');
 
-            for (let dan = 1; dan <= 9; dan++) {
-                const data = KUKU_DATA[dan];
-                const isCleared = !!clearedStamps[dan];
+            if (formulaElem) formulaElem.innerText = `${item.num1} × ${item.num2} = ${item.ans}`;
+            if (chantElem) chantElem.innerText = chantStyle === 'chant' ? item.chant : item.std;
 
-                const card = document.createElement('div');
-                card.className = `glass-card rounded-3xl p-4 flex flex-col items-center justify-between shadow-sm hover:shadow-md transition-all cursor-pointer border-2 hover:border-amber-400 group relative overflow-hidden`;
-                card.onclick = () => selectStage(dan);
+            if (progressText) progressText.innerText = `${currentIndex + 1} / 9`;
+            if (progressBar) progressBar.style.width = `${((currentIndex + 1) / 9) * 100}%`;
 
-                card.innerHTML = `
-                    <div class="absolute -right-3 -bottom-3 text-6xl text-slate-100 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid ${data.icon}"></i>
-                    </div>
-                    <div class="w-full flex justify-between items-center mb-2">
-                        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr ${data.color} text-white font-black text-sm flex items-center justify-center shadow-sm">
-                            ${dan}
-                        </span>
-                        ${isCleared ? `<span class="text-amber-500 text-sm"><i class="fa-solid fa-crown"></i></span>` : ''}
-                    </div>
-                    <div class="text-center my-2 relative z-10">
-                        <h3 class="text-xl font-black text-slate-800">${data.title}</h3>
-                        <p class="text-xs text-slate-500 font-bold">${dan} × 1 ～ ${dan} × 9</p>
-                    </div>
-                    <button class="w-full mt-2 py-2 rounded-2xl bg-slate-100 group-hover:bg-amber-500 group-hover:text-white text-slate-700 font-bold text-xs transition-all flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-play text-[10px]"></i>
-                        <span>すたーと</span>
-                    </button>
-                `;
-                grid.appendChild(card);
+            if (cardElem) {
+                cardElem.classList.remove('animate-card-pop');
+                void cardElem.offsetWidth;
+                cardElem.classList.add('animate-card-pop');
             }
-        }
-
-        function selectStage(dan) {
-            initAudioContext();
-            currentDan = dan;
-            currentIndex = 0;
-            pausePlay();
-            
-            // Update UI badges & style
-            const data = KUKU_DATA[dan];
-            const badge = document.getElementById('player-stage-badge');
-            badge.innerText = data.title;
-            badge.className = `px-4 py-1.5 text-white rounded-2xl font-black text-sm shadow-md bg-gradient-to-r ${data.color}`;
-
-            document.getElementById('card-bg-icon').innerHTML = `<i class="fa-solid ${data.icon}"></i>`;
 
             renderMiniItemsGrid();
-            updateCardDisplay();
-            switchView('player');
         }
 
         function renderMiniItemsGrid() {
             const grid = document.getElementById('mini-items-grid');
+            if (!grid) return;
             grid.innerHTML = '';
-            const items = KUKU_DATA[currentDan].items;
 
+            const items = KUKU_DATA[currentDan].items;
             items.forEach((item, idx) => {
-                const btn = document.createElement('button');
+                const itemBtn = document.createElement('button');
                 const isActive = idx === currentIndex;
-                btn.className = `py-1.5 text-xs font-black rounded-xl transition-all ${
-                    isActive 
-                        ? 'bg-amber-500 text-white shadow-md scale-105 ring-2 ring-amber-300' 
-                        : 'bg-white/60 hover:bg-white text-slate-600 border border-slate-200'
-                }`;
-                btn.innerText = `×${item.num2}`;
-                btn.onclick = () => {
+                itemBtn.onclick = () => {
                     pausePlay();
                     currentIndex = idx;
                     updateCardDisplay();
                     playCurrentStepSpeech();
                 };
-                grid.appendChild(btn);
+                itemBtn.className = `py-1 text-center rounded-xl font-black text-xs transition-all ${
+                    isActive 
+                        ? 'bg-amber-500 text-white shadow-sm scale-105' 
+                        : 'bg-white/80 text-slate-600 hover:bg-amber-100 border border-slate-200'
+                }`;
+                itemBtn.innerText = `×${item.num2}`;
+                grid.appendChild(itemBtn);
             });
         }
 
-        function updateCardDisplay() {
+        function selectStage(dan, keepAllDanMode = false) {
+            initAudioContext();
+            if (!keepAllDanMode) {
+                isAllDanMode = false;
+            }
+            currentDan = dan;
+            currentIndex = 0;
+            pausePlay();
+            
+            updateStageUI();
+            updateCardDisplay();
+            switchView('player');
+        }
+
+        function updateStageUI() {
             const data = KUKU_DATA[currentDan];
-            const item = data.items[currentIndex];
+            const badge = document.getElementById('player-stage-badge');
+            const modeSuffix = isAllDanMode ? ' (ぜんぶ)' : '';
+            badge.innerText = `${data.title}${modeSuffix}`;
+            badge.className = `px-4 py-1.5 text-white rounded-2xl font-black text-sm shadow-md bg-gradient-to-r ${data.color}`;
 
-            // Formula
-            document.getElementById('card-formula').innerHTML = `
-                <span>${item.num1}</span>
-                <span class="${data.textCol} mx-1">×</span>
-                <span>${item.num2}</span>
-                <span class="text-slate-400 mx-1">=</span>
-                <span class="text-amber-600">${item.ans}</span>
-            `;
-
-            // Chant Text
-            const chantElement = document.getElementById('card-chant');
-            chantElement.innerText = chantStyle === 'chant' ? item.chant : item.std;
-
-            // Progress text and bar
-            document.getElementById('progress-text').innerText = `${currentIndex + 1} / 9`;
-            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / 9) * 100}%`;
+            document.getElementById('card-bg-icon').innerHTML = `<i class="fa-solid ${data.icon}"></i>`;
 
             renderMiniItemsGrid();
         }
 
-        // Visual Beat Animation
-        function animateBeatDots(callback) {
-            const d1 = document.getElementById('beat-dot-1');
-            const d2 = document.getElementById('beat-dot-2');
-            const d3 = document.getElementById('beat-dot-3');
-            const card = document.getElementById('main-card');
-
-            // Reset
-            [d1, d2, d3].forEach(d => d.className = "w-3 h-3 rounded-full bg-slate-200 transition-all");
-
-            card.classList.remove('animate-beat');
-            void card.offsetWidth; // Trigger reflow
-            card.classList.add('animate-beat');
-
-            playBeatSound('pop');
-            d1.className = "w-3 h-3 rounded-full bg-amber-500 scale-125 shadow-sm";
-
-            setTimeout(() => {
-                playBeatSound('tick');
-                d2.className = "w-3 h-3 rounded-full bg-amber-500 scale-125 shadow-sm";
-            }, 180 / speedRate);
-
-            setTimeout(() => {
-                playBeatSound('tick');
-                d3.className = "w-3 h-3 rounded-full bg-amber-500 scale-125 shadow-sm";
-                if (callback) callback();
-            }, 360 / speedRate);
+        function startAllDanPlay() {
+            initAudioContext();
+            isAllDanMode = true;
+            currentDan = 1;
+            currentIndex = 0;
+            pausePlay();
+            
+            updateStageUI();
+            updateCardDisplay();
+            switchView('player');
+            startPlay();
         }
 
-        // Play single step speech with rhythmic intro
+        function togglePlay() {
+            if (isPlaying) {
+                pausePlay();
+            } else {
+                startPlay();
+            }
+        }
+
+        function startPlay() {
+            initAudioContext();
+            isPlaying = true;
+            const playBtn = document.getElementById('play-btn');
+            const playIcon = document.getElementById('play-icon');
+            if (playBtn) playBtn.className = "w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white flex items-center justify-center text-2xl shadow-lg active:scale-95 transition-all";
+            if (playIcon) playIcon.className = "fa-solid fa-pause";
+
+            playCurrentStepSpeech();
+        }
+
+        function pausePlay() {
+            isPlaying = false;
+            if (timerId) clearTimeout(timerId);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            const playBtn = document.getElementById('play-btn');
+            const playIcon = document.getElementById('play-icon');
+            if (playBtn) playBtn.className = "w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center justify-center text-2xl shadow-lg active:scale-95 transition-all";
+            if (playIcon) playIcon.className = "fa-solid fa-play ml-1";
+        }
+
         function playCurrentStepSpeech() {
             const item = KUKU_DATA[currentDan].items[currentIndex];
             const textToSpeak = chantStyle === 'chant' ? item.chant : item.std;
@@ -688,21 +706,29 @@
             animateBeatDots(() => {
                 speakText(textToSpeak, speedRate, () => {
                     if (isPlaying) {
-                        // Advance to next step
                         timerId = setTimeout(() => {
                             if (currentIndex < 8) {
                                 currentIndex++;
                                 updateCardDisplay();
                                 playCurrentStepSpeech();
                             } else {
-                                if (isRepeat) {
+                                if (isAllDanMode && currentDan < 9) {
+                                    currentDan++;
                                     currentIndex = 0;
+                                    updateStageUI();
+                                    updateCardDisplay();
+                                    playCurrentStepSpeech();
+                                } else if (isRepeat) {
+                                    if (isAllDanMode) {
+                                        currentDan = 1;
+                                    }
+                                    currentIndex = 0;
+                                    updateStageUI();
                                     updateCardDisplay();
                                     playCurrentStepSpeech();
                                 } else {
                                     pausePlay();
-                                    // Finished full round!
-                                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                                    confetti({ particleCount: 100, spread: 80, origin: { y: 0.7 } });
                                     playBeatSound('correct');
                                 }
                             }
@@ -712,45 +738,32 @@
             });
         }
 
-        // Playback Controls
-        function togglePlay() {
-            initAudioContext();
-            if (isPlaying) {
-                pausePlay();
-            } else {
-                startPlay();
-            }
-        }
-
-        function startPlay() {
-            isPlaying = true;
-            document.getElementById('play-icon').className = "fa-solid fa-pause";
-            document.getElementById('play-btn').classList.add('ring-4', 'ring-amber-300');
-            playCurrentStepSpeech();
-        }
-
-        function pausePlay() {
-            isPlaying = false;
-            if (timerId) clearTimeout(timerId);
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-            
-            const playIcon = document.getElementById('play-icon');
-            if (playIcon) playIcon.className = "fa-solid fa-play ml-1";
-            
-            const playBtn = document.getElementById('play-btn');
-            if (playBtn) playBtn.classList.remove('ring-4', 'ring-amber-300');
-        }
-
         function nextStep() {
             pausePlay();
-            currentIndex = (currentIndex + 1) % 9;
+            if (currentIndex < 8) {
+                currentIndex++;
+            } else if (isAllDanMode && currentDan < 9) {
+                currentDan++;
+                currentIndex = 0;
+                updateStageUI();
+            } else {
+                currentIndex = 0;
+            }
             updateCardDisplay();
             playCurrentStepSpeech();
         }
 
         function prevStep() {
             pausePlay();
-            currentIndex = (currentIndex - 1 + 9) % 9;
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else if (isAllDanMode && currentDan > 1) {
+                currentDan--;
+                currentIndex = 8;
+                updateStageUI();
+            } else {
+                currentIndex = 8;
+            }
             updateCardDisplay();
             playCurrentStepSpeech();
         }
@@ -790,15 +803,12 @@
             updateCardDisplay();
         }
 
-        // QUIZ SYSTEM LOGIC
         function startQuizForCurrentDan() {
             pausePlay();
             quizIndex = 0;
             quizScore = 0;
 
-            // Generate shuffled items for quiz
             const items = [...KUKU_DATA[currentDan].items];
-            // Shuffle
             quizItems = items.sort(() => Math.random() - 0.5);
 
             document.getElementById('quiz-stage-badge').innerText = `${KUKU_DATA[currentDan].title} たしかめテスト`;
@@ -808,7 +818,6 @@
 
         function renderQuizQuestion() {
             if (quizIndex >= quizItems.length) {
-                // Quiz completed!
                 finishQuiz();
                 return;
             }
@@ -818,10 +827,8 @@
             document.getElementById('quiz-score-count').innerHTML = `<i class="fa-solid fa-star"></i> ${quizScore} てん`;
             document.getElementById('quiz-question').innerHTML = `${current.num1} × ${current.num2} = ?`;
 
-            // Generate 4 choices
             const choices = [current.ans];
             while (choices.length < 4) {
-                // Generate reasonable distractor numbers
                 let wrong = current.ans + (Math.floor(Math.random() * 5) - 2) * current.num1;
                 if (wrong <= 0 || choices.includes(wrong)) {
                     wrong = Math.floor(Math.random() * 81) + 1;
@@ -843,7 +850,6 @@
                 optionsGrid.appendChild(btn);
             });
 
-            // Speak question sound
             speakText(`${current.num1} かける ${current.num2} は？`, 1.1);
         }
 
@@ -860,7 +866,6 @@
                 playBeatSound('wrong');
                 btnElem.className = "py-4 bg-rose-500 text-white font-black text-2xl rounded-2xl border-2 border-rose-600 shadow-md";
                 
-                // Highlight correct
                 allBtns.forEach(b => {
                     if (parseInt(b.innerText) === correct) {
                         b.className = "py-4 bg-emerald-100 text-emerald-800 font-black text-2xl rounded-2xl border-2 border-emerald-400";
@@ -877,10 +882,11 @@
         function finishQuiz() {
             const isPerfect = quizScore === 90;
             
-            // Save Stamp
             if (isPerfect || quizScore >= 70) {
                 clearedStamps[currentDan] = true;
-                localStorage.setItem('kuku_cleared_stamps', JSON.stringify(clearedStamps));
+                try {
+                    localStorage.setItem('kuku_cleared_stamps', JSON.stringify(clearedStamps));
+                } catch(e) {}
                 renderStageGrid();
                 renderStampsGrid();
             }
@@ -940,7 +946,6 @@
             }
         }
 
-        // View Switching Controller
         function switchView(viewName) {
             pausePlay();
             document.getElementById('view-menu').classList.add('hidden');
@@ -956,6 +961,43 @@
                 document.getElementById('view-quiz').classList.remove('hidden');
                 document.getElementById('view-quiz').classList.add('flex');
             }
+        }
+
+        function renderStageGrid() {
+            const grid = document.getElementById('stage-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            for (let dan = 1; dan <= 9; dan++) {
+                const data = KUKU_DATA[dan];
+                const isCleared = !!clearedStamps[dan];
+
+                const btn = document.createElement('button');
+                btn.onclick = () => selectStage(dan);
+                btn.className = `p-4 sm:p-5 rounded-3xl text-left border-2 flex flex-col justify-between h-32 sm:h-36 shadow-sm hover:shadow-md transition-all relative overflow-hidden active:scale-95 bg-gradient-to-br ${data.color} text-white border-transparent cursor-pointer`;
+
+                btn.innerHTML = `
+                    <div class="flex justify-between items-start z-10">
+                        <span class="text-xs font-bold px-2.5 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+                            ${data.title}
+                        </span>
+                        ${isCleared ? '<i class="fa-solid fa-circle-check text-amber-300 text-lg"></i>' : ''}
+                    </div>
+                    <div class="z-10 mt-2">
+                        <div class="text-2xl sm:text-3xl font-black">${dan} の だん</div>
+                        <div class="text-xs opacity-90 font-bold">${data.sample}</div>
+                    </div>
+                    <i class="fa-solid ${data.icon} absolute -right-3 -bottom-3 text-6xl text-white/10 pointer-events-none"></i>
+                `;
+
+                grid.appendChild(btn);
+            }
+        }
+
+        // App Initialization
+        function initApp() {
+            renderStageGrid();
+            renderStampsGrid();
         }
 
         // Initialize App on Window Load
